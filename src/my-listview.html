@@ -1,0 +1,166 @@
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+
+<dom-module id="my-listview">
+  <template stripWhiteSpace>
+    <style>
+      :host {
+        display: block;
+      }
+
+      paper-item {
+        display: block;
+      }
+
+      [icon="add"]{
+        display: block;
+        position: absolute;
+        bottom: 20px;
+      }
+    </style>
+    <!-- structure of listview -->
+       <template is="dom-repeat" items="[[taskList]]" index-as="index">
+         <paper-item>
+           <paper-checkbox checked="{{taskStatus}}" on-change="updateTaskStatus">[[item.name]]</paper-checkbox>
+           <paper-icon-button icon="delete" on-tap="deleteTask"></paper-icon-button>
+         </paper-item>
+       </template>
+       <paper-fab icon="add" on-tap="showAddTaskDialogBox"></paper-fab>
+       <paper-dialog>
+         <h2>Dialog Title</h2>
+
+       </paper-dialog>
+  </template>
+  <script>
+    Polymer({
+      is: "my-listview",
+      properties: {
+          taskList: {
+            type: Array,
+            value: function() {
+                    return [
+                            //  {
+                            //         name: "go to ppa",
+                            //         status: "uncompleted"
+                            //  },
+                            //     {
+                            //         name: "go to church",
+                            //         status: "uncompleted"
+                            //     }
+                           ]
+                  }
+          },
+      },
+        ready: function() {
+          this.taskStatus = false;
+          this.task = {
+                          name: "go to ppa",
+                          status: "uncompleted"
+                      };
+            // this.addTask();
+            this._updateListView();
+        },
+        updateTaskStatus: function() {
+          if (this.taskStatus) {
+            this.task.status = "completed";
+          } else {
+            this.task.status = "uncompleted";
+          }
+          localStorage.setItem(this.task.name, JSON.stringify(this.task));
+
+        },
+
+        //  when user clicks on add button
+        addTask: function() {
+              var taskName1 = "go jogging";
+              // if taskName is empty show msg otherwis
+              localStorage.setItem(taskName1, JSON.stringify({
+                              name: taskName1,
+                              status: "uncompleted"
+                          }));
+              var taskName2 = "go shopping";
+              // if taskName is empty show msg otherwis
+              localStorage.setItem(taskName2, JSON.stringify({
+                              name: taskName2,
+                              status: "uncompleted"
+                          }));
+              var savedTaskList = [];
+              for (var key in localStorage) {
+                  var savedTask = JSON.parse( localStorage.getItem(key) );
+                  savedTaskList.push({
+                    name: savedTask.name,
+                    status: savedTask.status
+                  });
+              }
+              this._updateListView(savedTaskList);
+
+          // localStorage.setItem("go to ppa", JSON.stringify({
+          //                 name: "go to ppa",
+          //                 status: "uncompleted"
+          //             }));
+          //   localStorage.setItem("go church", JSON.stringify({
+          //                   name: "go church",
+          //                   status: "uncompleted"
+          //               }));
+        },
+
+        // it should update view when a task is add to storeage
+         // on subsequent runs, it should retrive data in database
+        _retriveSavedTasks: function() {
+            if (localStorage.length !== 0) {
+              // retrieve tasks
+              var savedTaskList = [];
+              for (var key in localStorage) {
+                  var savedTask = JSON.parse( localStorage.getItem(key) );
+                  savedTaskList.push({
+                    name: savedTask.name,
+                    status: savedTask.status
+                  });
+              }
+
+              return savedTaskList;
+           }
+        },
+
+        deleteTask: function(event) {
+           var taskToDelete = event.model.item;
+           localStorage.removeItem(taskToDelete.name);
+           var savedTaskList = [];
+           for (var key in localStorage) {
+               var savedTask = JSON.parse( localStorage.getItem(key) );
+               savedTaskList.push({
+                 name: savedTask.name,
+                 status: savedTask.status
+               });
+           }
+           this._updateListView(savedTaskList);
+             // var deleteElem = event.target;
+            // console.dir(deleteElem);
+            // var pcb = Polymer.dom(deleteElem).previousElementSibling;
+            // var taskName = Polymer.dom(pcb).textContent;
+            // console.log(taskName);
+            // console.dir(pcb);
+            // localStorage.removeItem(taskName);
+
+         },
+
+         // it should clear list
+
+        _updateListView: function() {
+               var list = this._retriveSavedTasks();
+               this.splice('taskList', 0);
+                var self = this;
+                list.forEach(function(savedTask){
+                  self.push('taskList',{
+                      name: savedTask.name,
+                      status: savedTask.status
+                  });
+              });
+         }
+    });
+  </script>
+</dom-module>
