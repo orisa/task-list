@@ -4,9 +4,18 @@
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+
+ 
+
+
 
 <dom-module id="my-listview">
-  <template stripWhiteSpace>
+  <template strip-whitespace>
     <style>
       :host {
         display: block;
@@ -24,15 +33,22 @@
     </style>
     <!-- structure of listview -->
        <template is="dom-repeat" items="[[taskList]]" index-as="index">
+         <paper-dropdown-menu label="status">
+            <paper-listbox class="dropdown-content">
+              paper-i
+            </paper-listbox>
+         </paper-dropdown-menu>
          <paper-item>
-           <paper-checkbox checked="{{taskStatus}}" on-change="updateTaskStatus">[[item.name]]</paper-checkbox>
            <paper-icon-button icon="delete" on-tap="deleteTask"></paper-icon-button>
          </paper-item>
        </template>
-       <paper-fab icon="add" on-tap="showAddTaskDialogBox"></paper-fab>
-       <paper-dialog>
-         <h2>Dialog Title</h2>
-
+       <paper-fab icon="add" on-tap="_showAddTaskDialogBox"></paper-fab>
+       <paper-dialog id="taskNameDialogBox">
+            <paper-input label="Enter Task Name"></paper-input>
+           <div class="buttons">
+            <paper-button dialog-dismiss>Cancel</paper-button>
+            <paper-button dialog-confirm autofocus>Accept</paper-button>
+          </div>
        </paper-dialog>
   </template>
   <script>
@@ -43,25 +59,22 @@
             type: Array,
             value: function() {
                     return [
-                            //  {
-                            //         name: "go to ppa",
-                            //         status: "uncompleted"
-                            //  },
-                            //     {
-                            //         name: "go to church",
-                            //         status: "uncompleted"
-                            //     }
+                            
                            ]
                   }
           },
+
+          listName: {
+            type: String,
+            value: "shopping"
+          }
       },
         ready: function() {
           this.taskStatus = false;
           this.task = {
-                          name: "go to ppa",
-                          status: "uncompleted"
+                         
+                          
                       };
-            // this.addTask();
             this._updateListView();
         },
         updateTaskStatus: function() {
@@ -77,26 +90,30 @@
         //  when user clicks on add button
         addTask: function() {
               var taskName1 = "go jogging";
-              // if taskName is empty show msg otherwis
-              localStorage.setItem(taskName1, JSON.stringify({
-                              name: taskName1,
+               localStorage.setItem(task.name, JSON.stringify({
+                              listName: this.listName,
+                              name: task.name,
                               status: "uncompleted"
                           }));
-              var taskName2 = "go shopping";
               // if taskName is empty show msg otherwis
-              localStorage.setItem(taskName2, JSON.stringify({
-                              name: taskName2,
-                              status: "uncompleted"
-                          }));
-              var savedTaskList = [];
-              for (var key in localStorage) {
-                  var savedTask = JSON.parse( localStorage.getItem(key) );
-                  savedTaskList.push({
-                    name: savedTask.name,
-                    status: savedTask.status
-                  });
-              }
-              this._updateListView(savedTaskList);
+              // localStorage.setItem(taskName1, JSON.stringify({
+              //                 listName: "Exercises",
+              //                 name: taskName1,
+              //                 status: "uncompleted"
+              //             }));
+              // var taskName2 = "buy eggs";
+              // // if taskName is empty show msg otherwis
+              // localStorage.setItem(taskName2, JSON.stringify({
+              //                 listName: this.listName,
+              //                 name: taskName2,
+              //                 status: "uncompleted"
+              //             }));  
+              //  localStorage.setItem("buy bread", JSON.stringify({
+              //                 listName: this.listName,
+              //                 name: "buy bread",
+              //                 status: "uncompleted"
+              //             }));                  
+              this._updateListView();
 
           // localStorage.setItem("go to ppa", JSON.stringify({
           //                 name: "go to ppa",
@@ -108,7 +125,7 @@
           //               }));
         },
 
-        // it should update view when a task is add to storeage
+        
          // on subsequent runs, it should retrive data in database
         _retriveSavedTasks: function() {
             if (localStorage.length !== 0) {
@@ -116,10 +133,14 @@
               var savedTaskList = [];
               for (var key in localStorage) {
                   var savedTask = JSON.parse( localStorage.getItem(key) );
-                  savedTaskList.push({
-                    name: savedTask.name,
-                    status: savedTask.status
-                  });
+                  if (savedTask.listName === this.listName) {
+                        savedTaskList.push({
+                        listName: savedTask.listName,
+                        name: savedTask.name,
+                        status: savedTask.status
+                     });
+                  }
+                  
               }
 
               return savedTaskList;
@@ -130,36 +151,33 @@
            var taskToDelete = event.model.item;
            localStorage.removeItem(taskToDelete.name);
            var savedTaskList = [];
-           for (var key in localStorage) {
-               var savedTask = JSON.parse( localStorage.getItem(key) );
-               savedTaskList.push({
-                 name: savedTask.name,
-                 status: savedTask.status
-               });
-           }
-           this._updateListView(savedTaskList);
-             // var deleteElem = event.target;
-            // console.dir(deleteElem);
-            // var pcb = Polymer.dom(deleteElem).previousElementSibling;
-            // var taskName = Polymer.dom(pcb).textContent;
-            // console.log(taskName);
-            // console.dir(pcb);
-            // localStorage.removeItem(taskName);
+           this._updateListView();
+             
 
+         },
+
+         _showAddTaskDialogBox: function() {
+           // use light dom here
+            var dialogBox = Polymer.dom(this.root).querySelector('#taskNameDialogBox');
+            dialogBox.open();
          },
 
          // it should clear list
 
         _updateListView: function() {
                var list = this._retriveSavedTasks();
-               this.splice('taskList', 0);
-                var self = this;
-                list.forEach(function(savedTask){
-                  self.push('taskList',{
-                      name: savedTask.name,
-                      status: savedTask.status
+               if (list.length !== 0) {
+                    this.splice('taskList', 0);
+                    var self = this;
+                    list.forEach(function(savedTask){
+                      self.push('taskList',{
+                          listName: savedTask.listName,
+                          name: savedTask.name,
+                          status: savedTask.status
+                      });
                   });
-              });
+               }
+               
          }
     });
   </script>
