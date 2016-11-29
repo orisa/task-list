@@ -9,14 +9,12 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
  
-
-
-
 <dom-module id="my-listview">
   <template strip-whitespace>
-    <style>
+    <style is='custom-style'>
       :host {
         display: block;
       }
@@ -30,24 +28,49 @@
         position: absolute;
         bottom: 20px;
       }
+      
+      paper-fab {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+      }
+
+      [icon="delete"] {
+        margin-left: auto; 
+        color: red;
+       }
+      .task{
+        width: 95%;
+        margin: 0 auto;
+      }
+      #item{
+        /*@apply(--layout-justified);*/
+        /*justify-content: space-around;*/
+
+      }
     </style>
     <!-- structure of listview -->
+       <div class="task">
        <template is="dom-repeat" items="[[taskList]]" index-as="index">
-         <paper-dropdown-menu label="status">
-            <paper-listbox class="dropdown-content">
-              paper-i
+         <paper-item id=item>
+            <paper-dropdown-menu label="status" on-iron-select="updateTaskStatus">
+            <paper-listbox class="dropdown-content" attr-for-selected="status" selected="{{item.status}}">
+              <paper-item status="completed">completed</paper-item>
+              <paper-item status="not started">not started</paper-item>
+              <paper-item status="inprogress">inprogress</paper-item>              
             </paper-listbox>
          </paper-dropdown-menu>
-         <paper-item>
+         <span>[[item.name]]</span>              
            <paper-icon-button icon="delete" on-tap="deleteTask"></paper-icon-button>
          </paper-item>
        </template>
+       </div>
        <paper-fab icon="add" on-tap="_showAddTaskDialogBox"></paper-fab>
        <paper-dialog id="taskNameDialogBox">
-            <paper-input label="Enter Task Name"></paper-input>
+            <paper-input label="Enter Task Name" value="{{taskName}}"></paper-input>
            <div class="buttons">
             <paper-button dialog-dismiss>Cancel</paper-button>
-            <paper-button dialog-confirm autofocus>Accept</paper-button>
+            <paper-button dialog-confirm autofocus on-tap="addTask">Accept</paper-button>
           </div>
        </paper-dialog>
   </template>
@@ -67,70 +90,46 @@
           listName: {
             type: String,
             value: "shopping"
+          },
+          taskName: {
+            type: String
           }
       },
         ready: function() {
-          this.taskStatus = false;
-          this.task = {
-                         
-                          
-                      };
+          
             this._updateListView();
         },
-        updateTaskStatus: function() {
-          if (this.taskStatus) {
-            this.task.status = "completed";
-          } else {
-            this.task.status = "uncompleted";
-          }
-          localStorage.setItem(this.task.name, JSON.stringify(this.task));
+        updateTaskStatus: function(evt) {
+          var selectedItem = evt.model.item;
+          console.dir(selectedItem);
+          console.log(selectedItem.status)
+          localStorage.setItem(selectedItem.name, JSON.stringify({
+               listName: selectedItem.listName,
+               name: selectedItem.name,
+               status: selectedItem.status
+          }));
 
         },
 
         //  when user clicks on add button
         addTask: function() {
               var taskName1 = "go jogging";
-               localStorage.setItem(task.name, JSON.stringify({
+               localStorage.setItem(this.taskName, JSON.stringify({
                               listName: this.listName,
-                              name: task.name,
-                              status: "uncompleted"
+                              name: this.taskName,
+                              status: "not started"
                           }));
-              // if taskName is empty show msg otherwis
-              // localStorage.setItem(taskName1, JSON.stringify({
-              //                 listName: "Exercises",
-              //                 name: taskName1,
-              //                 status: "uncompleted"
-              //             }));
-              // var taskName2 = "buy eggs";
-              // // if taskName is empty show msg otherwis
-              // localStorage.setItem(taskName2, JSON.stringify({
-              //                 listName: this.listName,
-              //                 name: taskName2,
-              //                 status: "uncompleted"
-              //             }));  
-              //  localStorage.setItem("buy bread", JSON.stringify({
-              //                 listName: this.listName,
-              //                 name: "buy bread",
-              //                 status: "uncompleted"
-              //             }));                  
+              this.taskName = "";
+                       
               this._updateListView();
-
-          // localStorage.setItem("go to ppa", JSON.stringify({
-          //                 name: "go to ppa",
-          //                 status: "uncompleted"
-          //             }));
-          //   localStorage.setItem("go church", JSON.stringify({
-          //                   name: "go church",
-          //                   status: "uncompleted"
-          //               }));
         },
 
         
          // on subsequent runs, it should retrive data in database
         _retriveSavedTasks: function() {
+            var savedTaskList = [];
             if (localStorage.length !== 0) {
               // retrieve tasks
-              var savedTaskList = [];
               for (var key in localStorage) {
                   var savedTask = JSON.parse( localStorage.getItem(key) );
                   if (savedTask.listName === this.listName) {
@@ -142,15 +141,13 @@
                   }
                   
               }
-
-              return savedTaskList;
            }
+           return savedTaskList;
         },
 
         deleteTask: function(event) {
            var taskToDelete = event.model.item;
            localStorage.removeItem(taskToDelete.name);
-           var savedTaskList = [];
            this._updateListView();
              
 
