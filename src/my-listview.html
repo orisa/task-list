@@ -10,19 +10,34 @@
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../src/theme.html">
 
  
 <dom-module id="my-listview">
   <template strip-whitespace>
-    <style is='custom-style'>
+    <style is="custom-style">
       :host {
         display: block;
-      }
+          --paper-dropdown-menu-input: {
+              color: yellow;
+              font-style: italic;
+              font-family: hind serif;
+              text-transform: uppercase;
+              border-bottom: none;
+           };
 
-      paper-item {
-        display: block;
+            --paper-dropdown-menu: {
+                    width: 20%;
+             };
+       
       }
+  
+      paper-dropdown-menu {
+                 --paper-input-container-focus-color: green;
+           }
 
+            
+     
       [icon="add"]{
         display: block;
         position: absolute;
@@ -35,7 +50,7 @@
         right: 20px;
       }
 
-      [icon="delete"] {
+      [icon="create"] {
         margin-left: auto; 
         color: red;
        }
@@ -43,11 +58,27 @@
         width: 95%;
         margin: 0 auto;
       }
-      #item{
-        /*@apply(--layout-justified);*/
-        /*justify-content: space-around;*/
 
+      #taskNameDialogBox > .buttons {
+        display: flex;
+        justify-content: space-between;
+        color: var(--button-color);
+        font-weight: 800;
       }
+      #item span {
+        /*align-self: flex-end;*/
+        margin-left: 20%
+      }
+
+      paper-dialog paper-input {
+       
+        color: tomato;
+      }
+      
+     
+      /*paper-dropdown-menu {
+        @apply(--paper-dropdown-menu-input);
+      }*/
     </style>
     <!-- structure of listview -->
        <div class="task">
@@ -60,17 +91,21 @@
               <paper-item status="inprogress">inprogress</paper-item>              
             </paper-listbox>
          </paper-dropdown-menu>
-         <span>[[item.name]]</span>              
+         <span>[[item.name]]</span> 
+           <paper-icon-button icon="create" on-tap="_editTask"></paper-icon-button>  
            <paper-icon-button icon="delete" on-tap="deleteTask"></paper-icon-button>
          </paper-item>
        </template>
        </div>
        <paper-fab icon="add" on-tap="_showAddTaskDialogBox"></paper-fab>
-       <paper-dialog id="taskNameDialogBox">
-            <paper-input label="Enter Task Name" value="{{taskName}}"></paper-input>
+       <paper-dialog id="taskNameDialogBox" modal>
+            <h3>Task Name Dialog Box</h3>
+            <paper-input id="pi" label="Enter Task Name" autofocus required auto-validate error-message="task name cannot be empty!"
+             value="{{taskName}}"></paper-input>
            <div class="buttons">
             <paper-button dialog-dismiss>Cancel</paper-button>
-            <paper-button dialog-confirm autofocus on-tap="addTask">Accept</paper-button>
+            <paper-button dialog-confirm autofocus on-tap="addTask">Confirm</paper-button>
+             <paper-button  autofocus on-tap="_clearTaskName">Clear</paper-button>
           </div>
        </paper-dialog>
   </template>
@@ -113,17 +148,46 @@
 
         //  when user clicks on add button
         addTask: function() {
-              var taskName1 = "go jogging";
-               localStorage.setItem(this.taskName, JSON.stringify({
-                              listName: this.listName,
-                              name: this.taskName,
-                              status: "not started"
-                          }));
-              this.taskName = "";
+             console.dir(this);
+             var taskNameIsValid = false;
+             this._validateTaskNameInput(taskNameIsValid);
+             if (taskNameIsValid) {
+                localStorage.setItem(this.taskName, JSON.stringify({
+                          listName: this.listName,
+                          name: this.taskName,
+                          status: "not started"
+                      }));
+                this.taskName = "";
                        
               this._updateListView();
+             }
+              
+        },
+        
+        _clearTaskName: function() {
+              var paperInputElem = Polymer.dom(this.$.taskNameDialogBox).querySelector("#pi");
+              paperInputElem.value = "";
         },
 
+        _editTask: function(evt) {
+              // try to access paper icom button
+              //console.dir(Polymer.dom(evt.target).parentNode);
+              var taskName = evt.model.item.name;
+             // var editTaskDialogBox = Polymer.dom(this.$.taskNameDialogBox); // why won't it work'
+              var editTaskDialogBox = Polymer.dom(this.root).querySelector("#taskNameDialogBox");              
+              editTaskDialogBox.querySelector("h3").innerText = "Edit Task Name";
+              var paperInputElem = Polymer.dom(this.$.taskNameDialogBox).querySelector("#pi");
+              paperInputElem.value = taskName;
+              editTaskDialogBox.open();
+        },
+        _validateTaskNameInput: function(taskNameIsValid) {
+         var paperInputElem = Polymer.dom(this.$.taskNameDialogBox).querySelector("#pi");
+          if (paperInputElem.value === "") {
+            alert("Task name cannot be empty");
+          } else {
+            taskNameIsValid = true;
+          }
+        },
         
          // on subsequent runs, it should retrive data in database
         _retriveSavedTasks: function() {
