@@ -10,6 +10,8 @@
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+
 <link rel="import" href="../src/theme.html">
 
  
@@ -29,7 +31,10 @@
             --paper-dropdown-menu: {
                     width: 20%;
              };
-       
+           
+           
+             
+           
       }
   
       paper-dropdown-menu {
@@ -83,18 +88,20 @@
     <!-- structure of listview -->
        <div class="task">
        <template is="dom-repeat" items="[[taskList]]" index-as="index">
-         <paper-item id=item>
-            <paper-dropdown-menu label="status" on-iron-select="updateTaskStatus">
-            <paper-listbox class="dropdown-content" attr-for-selected="status" selected="{{item.status}}">
-              <paper-item status="completed">completed</paper-item>
-              <paper-item status="not started">not started</paper-item>
-              <paper-item status="inprogress">inprogress</paper-item>              
-            </paper-listbox>
-         </paper-dropdown-menu>
-         <span>[[item.name]]</span> 
-           <paper-icon-button icon="create" on-tap="_editTask"></paper-icon-button>  
-           <paper-icon-button icon="delete" on-tap="deleteTask"></paper-icon-button>
-         </paper-item>
+         <paper-material >
+              <paper-item id=item>
+                  <paper-dropdown-menu label="status" on-iron-select="updateTaskStatus">
+                  <paper-listbox class="dropdown-content" attr-for-selected="status" selected="{{item.status}}">
+                    <paper-item status="completed">completed</paper-item>
+                    <paper-item status="not started">not started</paper-item>
+                    <paper-item status="inprogress">inprogress</paper-item>              
+                  </paper-listbox>
+              </paper-dropdown-menu>
+              <span>[[item.name]]</span> 
+                <paper-icon-button icon="create" on-tap="_editTask"></paper-icon-button>  
+                <paper-icon-button icon="delete" on-tap="deleteTask"></paper-icon-button>
+              </paper-item>
+         </paper-material>
        </template>
        </div>
        <paper-fab icon="add" on-tap="_showAddTaskDialogBox"></paper-fab>
@@ -103,8 +110,8 @@
             <paper-input id="pi" label="Enter Task Name" autofocus required auto-validate error-message="task name cannot be empty!"
              value="{{taskName}}"></paper-input>
            <div class="buttons">
-            <paper-button dialog-dismiss>Cancel</paper-button>
-            <paper-button dialog-confirm autofocus on-tap="addTask">Confirm</paper-button>
+            <paper-button dialog-dismiss on-tap="_clearTaskName">Cancel</paper-button>
+            <paper-button dialog-confirm autofocus on-tap="_processTask">Confirm</paper-button>
              <paper-button  autofocus on-tap="_clearTaskName">Clear</paper-button>
           </div>
        </paper-dialog>
@@ -128,6 +135,19 @@
           },
           taskName: {
             type: String
+          },
+          isTaskEdited: {
+            type: Boolean,
+            value: false
+          },
+          oldTaskName: {
+            type: String
+          },
+          oldTaskStatus: {
+            type: String
+          },
+          oldTaskListName: {
+            type: String
           }
       },
         ready: function() {
@@ -145,47 +165,86 @@
           }));
 
         },
+         
+         // it should update task name if user clicks confirm button
+        _processTask: function() {
+          if (!this.isTaskEdited) {
+            console.log("adding task");
+            this.addTask();
+          } else {
+            console.log("updating task");
+            var task = {
+              listName: this.oldTaskListName,
+              name: this.taskName,
+              status: this.oldTaskStatus
+            }
+            console.dir(task);
+            this._updateTask(task);
+            this.isTaskEdited = false;
+          }
+          // console.log(this.taskName);
+          // console.log(this.oldTaskName);
+        },
 
         //  when user clicks on add button
+        // it should replace task data in store if the task is an edited task
         addTask: function() {
              console.dir(this);
-             var taskNameIsValid = false;
-             this._validateTaskNameInput(taskNameIsValid);
+             var taskNameIsValid = this._validateTaskNameInput();
              if (taskNameIsValid) {
-                localStorage.setItem(this.taskName, JSON.stringify({
+                     localStorage.setItem(this.taskName, JSON.stringify({
                           listName: this.listName,
                           name: this.taskName,
                           status: "not started"
                       }));
                 this.taskName = "";
-                       
+                      
               this._updateListView();
-             }
+             }  
               
+        },
+
+        _updateTask: function(task) {
+            localStorage.removeItem(this.oldTaskName)
+            var taskNameIsValid = this._validateTaskNameInput();
+            if (taskNameIsValid) {
+              localStorage.setItem(task.name, JSON.stringify(task));
+              this.taskName = "";
+             this._updateListView();
+            }
+            
         },
         
         _clearTaskName: function() {
               var paperInputElem = Polymer.dom(this.$.taskNameDialogBox).querySelector("#pi");
               paperInputElem.value = "";
+              this.isTaskEdited = false;
         },
-
+        
+        // it should set edit state of task name
         _editTask: function(evt) {
+             
               // try to access paper icom button
               //console.dir(Polymer.dom(evt.target).parentNode);
               var taskName = evt.model.item.name;
              // var editTaskDialogBox = Polymer.dom(this.$.taskNameDialogBox); // why won't it work'
               var editTaskDialogBox = Polymer.dom(this.root).querySelector("#taskNameDialogBox");              
-              editTaskDialogBox.querySelector("h3").innerText = "Edit Task Name";
+              editTaskDialogBox.querySelector("h3").innerHTML = "Edit Task Name";
               var paperInputElem = Polymer.dom(this.$.taskNameDialogBox).querySelector("#pi");
               paperInputElem.value = taskName;
+               this.isTaskEdited = true;
+               this.oldTaskName = taskName;
+               this.oldTaskStatus = evt.model.item.status;
+               this.oldTaskListName = evt.model.item.listName;
               editTaskDialogBox.open();
         },
-        _validateTaskNameInput: function(taskNameIsValid) {
+        _validateTaskNameInput: function() {
          var paperInputElem = Polymer.dom(this.$.taskNameDialogBox).querySelector("#pi");
           if (paperInputElem.value === "") {
             alert("Task name cannot be empty");
+            return false;
           } else {
-            taskNameIsValid = true;
+            return true;
           }
         },
         
@@ -220,6 +279,7 @@
          _showAddTaskDialogBox: function() {
            // use light dom here
             var dialogBox = Polymer.dom(this.root).querySelector('#taskNameDialogBox');
+             dialogBox.querySelector("h3").innerHTML = "New Task Name";
             dialogBox.open();
          },
 
@@ -243,3 +303,5 @@
     });
   </script>
 </dom-module>
+
+ 
