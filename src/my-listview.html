@@ -20,9 +20,10 @@
 <dom-module id="my-listview">
   <template strip-whitespace>
     <style is="custom-style">
-      :host {
+      :root {
         display: block;
-          --paper-dropdown-menu-input: {
+        
+           --paper-dropdown-menu-input: {
               color: yellow;
               font-style: italic;
               font-family: hind serif;
@@ -34,15 +35,20 @@
                     width: 20%;
              };
            
-           
+           --paper-toolbar-background: #4CAF50;
+
+       
              
            
       }
   
-      paper-dropdown-menu {
-                 --paper-input-container-focus-color: green;
-           }
 
+      /** Components **/
+      paper-dropdown-menu,
+       #taskNameDialogBox paper-input {
+                 --paper-input-container-focus-color: #388E3C;
+      }
+   
         paper-material {
           background: white;
           box-sizing: border-box;
@@ -50,7 +56,10 @@
           padding: 16px;
           border-radius: 2px;
        }   
-     
+      
+      paper-item paper-icon-button {
+          color: #757575;
+       }
       [icon="add"]{
         display: block;
         position: absolute;
@@ -58,40 +67,46 @@
       }
       
       paper-fab {
-        position: absolute;
+        position: fixed;
         bottom: 20px;
         right: 20px;
       }
 
       [icon="create"] {
         margin-left: auto; 
-        color: green;
+      }
+
+        .container > paper-badge {
+          --paper-badge-margin-left: 20px;
+          --paper-badge-margin-bottom: 0px;
        }
+      
+
+      /** page elements **/
       .task{
         width: 95%;
         margin: 30px auto 0 auto;
+        --text-primary-color: #212121;
       }
 
       #taskNameDialogBox > .buttons {
         display: flex;
         justify-content: space-between;
-        color: var(--button-color);
+        color: #757575;
         font-weight: 800;
       }
+
+      #taskNameDialogBox h3 {
+        text-align: center;
+      }
+
       #item span {
-        /*align-self: flex-end;*/
-        margin-left: 20%
+         margin-left: 20%
       }
 
-      paper-dialog paper-input {
-        color: tomato;
-      }
+    
 
-       .container > paper-badge {
-          --paper-badge-margin-left: 20px;
-          --paper-badge-margin-bottom: 0px;
-       }
-      
+     
        .container {
          margin-right: 50px;
         }
