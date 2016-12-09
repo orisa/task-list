@@ -13,7 +13,7 @@
 <link rel="import" href="../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../bower_components/paper-badge/paper-badge.html">
-
+  <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../src/theme.html">
 
  
@@ -22,7 +22,7 @@
     <style is="custom-style">
       :root {
         display: block;
-        
+        box-sizing: border-box;
            --paper-dropdown-menu-input: {
               color: yellow;
               font-style: italic;
@@ -52,7 +52,7 @@
         paper-material {
           background: white;
           box-sizing: border-box;
-          margin: 8px;
+          margin: 8px 0;
           padding: 16px;
           border-radius: 2px;
        }   
@@ -115,6 +115,36 @@
          text-transform: uppercase;
         
        }
+
+       @media (max-width: 767px) {
+
+         :root {
+             /*background-color: #388E3C;*/
+               --paper-dropdown-menu: {
+                    width: 50%;
+             };
+           
+         }
+         
+         .task {
+           width: 100%;
+         }
+
+         #item {
+           padding-left: 0;
+           padding-right: 0;
+         }
+
+          #item span {
+              margin-left: 5%
+          }
+
+         paper-material {
+           padding-left: 10px;
+           padding-right: 10px;
+         }
+       }
+
     </style>
     <!-- structure of listview -->
        <paper-toolbar>
