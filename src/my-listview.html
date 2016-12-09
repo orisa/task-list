@@ -14,6 +14,7 @@
 <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../bower_components/paper-badge/paper-badge.html">
   <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+  <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">  
 <link rel="import" href="../src/theme.html">
 
  
@@ -30,10 +31,10 @@
               text-transform: uppercase;
               border-bottom: none;
            };
-
+/*
             --paper-dropdown-menu: {
                     width: 20%;
-             };
+             };*/
            
            --paper-toolbar-background: #4CAF50;
 
@@ -120,10 +121,18 @@
 
          :root {
              /*background-color: #388E3C;*/
-               --paper-dropdown-menu: {
+               /*--paper-dropdown-menu: {
                     width: 50%;
-             };
-           
+             };*/
+
+             
+          
+         }
+
+         paper-dropdown-menu {
+           --paper-input-container: {
+               width: 110px;
+             }
          }
          
          .task {
@@ -165,7 +174,10 @@
                     <paper-item status="inprogress">inprogress</paper-item>              
                   </paper-listbox>
               </paper-dropdown-menu>
-              <span>[[item.name]]</span> 
+              
+                 <span id="taskName">[[item.name]]</span> 
+                 <paper-tooltip position="bottom">[[item.name]]</paper-tooltip>
+              
                 <paper-icon-button icon="create" on-tap="_editTask"></paper-icon-button>  
                 <paper-icon-button icon="delete" on-tap="deleteTask"></paper-icon-button>
               </paper-item>
@@ -311,9 +323,16 @@
           if (paperInputElem.value === "") {
             alert("Task name cannot be empty");
             return false;
+          } else if (paperInputElem.value.length > 5) {
+            var contentWidth = Polymer.dom(this.root).querySelector('#taskName').clientWidth;
+            console.log(contentWidth);
+            paperInputElem.value = paperInputElem.value.substr(0, 5) + "...";
+              return true;
           } else {
-            return true;
+            return;
           }
+            
+          
         },
         
          // on subsequent runs, it should retrive data in database
