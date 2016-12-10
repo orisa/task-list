@@ -38,8 +38,6 @@
            
            --paper-toolbar-background: #4CAF50;
 
-       
-             
            
       }
   
@@ -49,7 +47,15 @@
        #taskNameDialogBox paper-input {
                  --paper-input-container-focus-color: #388E3C;
       }
-   
+      
+      
+        .fab {
+          position: fixed;
+          bottom: 60px;
+          right: 120px;
+          -webkit-transform: translateZ(0);
+        }
+             
         paper-material {
           background: white;
           box-sizing: border-box;
@@ -67,11 +73,7 @@
         bottom: 20px;
       }
       
-      paper-fab {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-      }
+   
 
       [icon="create"] {
         margin-left: auto; 
@@ -123,7 +125,13 @@
          text-transform: uppercase;
         
        }
+        @media (max-width: 1023px) {
 
+           .fab {
+             right: 100px;
+           }
+         }
+         
        @media (max-width: 767px) {
 
          :root {
@@ -135,6 +143,11 @@
              
           
          }
+
+          .fab {
+              right: 70px;
+          }
+
          paper-item > .truncate {
              
             width: 40%;
@@ -164,6 +177,8 @@
            padding-right: 10px;
          }
        }
+
+        
 
     </style>
     <!-- structure of listview -->
@@ -195,7 +210,6 @@
          </paper-material>
        </template>
        </div>
-       <paper-fab icon="add" on-tap="_showAddTaskDialogBox"></paper-fab>
        <paper-dialog id="taskNameDialogBox" modal>
             <h3>Task Name Dialog Box</h3>
             <paper-input id="pi" label="Enter Task Name" autofocus required auto-validate error-message="task name cannot be empty!"
@@ -206,6 +220,9 @@
              <paper-button  autofocus on-tap="_clearTaskName">Clear</paper-button>
           </div>
        </paper-dialog>
+       <div class="fab">
+         <paper-fab icon="add" on-tap="_showAddTaskDialogBox"></paper-fab>
+       </div>
   </template>
   <script>
     Polymer({
@@ -335,13 +352,6 @@
             alert("Task name cannot be empty");
             return false;
           }
-
-          //  if (paperInputElem.value.length > 5) {
-          //   var contentWidth = Polymer.dom(this.root).querySelector('#taskName').clientWidth;
-          //   console.log(contentWidth);
-          //   paperInputElem.value = paperInputElem.value.substr(0, 5) + "...";
-          //     return true;
-          // }
           return true;
             
         },
