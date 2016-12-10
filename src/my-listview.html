@@ -81,6 +81,13 @@
           --paper-badge-margin-left: 20px;
           --paper-badge-margin-bottom: 0px;
        }
+
+       paper-item > .truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 80%;
+        }
       
 
       /** page elements **/
@@ -102,7 +109,7 @@
       }
 
       #item span {
-         margin-left: 20%
+         margin-left: 5%
       }
 
     
@@ -128,7 +135,11 @@
              
           
          }
-
+         paper-item > .truncate {
+             
+            width: 40%;
+        }
+      
          paper-dropdown-menu {
            --paper-input-container: {
                width: 110px;
@@ -175,7 +186,7 @@
                   </paper-listbox>
               </paper-dropdown-menu>
               
-                 <span id="taskName">[[item.name]]</span> 
+                 <span id="taskName" class="truncate">[[item.name]]</span> 
                  <paper-tooltip position="bottom">[[item.name]]</paper-tooltip>
               
                 <paper-icon-button icon="create" on-tap="_editTask"></paper-icon-button>  
@@ -323,16 +334,16 @@
           if (paperInputElem.value === "") {
             alert("Task name cannot be empty");
             return false;
-          } else if (paperInputElem.value.length > 5) {
-            var contentWidth = Polymer.dom(this.root).querySelector('#taskName').clientWidth;
-            console.log(contentWidth);
-            paperInputElem.value = paperInputElem.value.substr(0, 5) + "...";
-              return true;
-          } else {
-            return;
           }
+
+          //  if (paperInputElem.value.length > 5) {
+          //   var contentWidth = Polymer.dom(this.root).querySelector('#taskName').clientWidth;
+          //   console.log(contentWidth);
+          //   paperInputElem.value = paperInputElem.value.substr(0, 5) + "...";
+          //     return true;
+          // }
+          return true;
             
-          
         },
         
          // on subsequent runs, it should retrive data in database
