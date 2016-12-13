@@ -55,7 +55,8 @@
           position: fixed;
           bottom: 60px;
           right: 120px;
-           
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
         }
              
         paper-material {
@@ -208,10 +209,9 @@
                     <paper-item status="inprogress">inprogress</paper-item>              
                   </paper-listbox>
               </paper-dropdown-menu>
-              <!--<div style="display: inline-block;">-->
-                 <!--<span  title$="[[item.name]]" class="truncate">[[item.name]]</span>                 -->
-                 <span  id$="t" + "[[index]]" class="truncate" offset="0">[[item.name]]</span> 
-                 <paper-tooltip for$="t" +"[[index]]">[[item.name]]</paper-tooltip>
+              <!--<div>-->
+                 <span  id$="t" + "[[index]]" class="truncate">[[item.name]]</span> 
+                 <paper-tooltip for$="t" +"[[index]]" position="top">[[item.name]]</paper-tooltip>
               <!--</div>-->
                 <paper-icon-button icon="create" on-tap="_editTask"></paper-icon-button>  
                 <paper-icon-button icon="delete" on-tap="deleteTask"></paper-icon-button>
