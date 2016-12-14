@@ -16,7 +16,7 @@
   <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
   <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html"> 
   <link rel="import" href="../bower_components/paper-item/paper-item-body.html">  
-   
+   <link rel="import" href="../bower_components/iron-list/iron-list.html">    
 <link rel="import" href="../src/theme.html">
 
  
@@ -26,6 +26,7 @@
       :root {
         display: block;
         box-sizing: border-box;
+        
            --paper-dropdown-menu-input: {
               color: yellow;
               font-style: italic;
@@ -33,10 +34,6 @@
               text-transform: uppercase;
               border-bottom: none;
            };
-/*
-            --paper-dropdown-menu: {
-                    width: 20%;
-             };*/
            
            --paper-toolbar-background: #4CAF50;
 
@@ -57,8 +54,12 @@
           right: 120px;
            
         }
-             
-        paper-material {
+
+         iron-list {
+          flex: 1 1 auto;
+        }
+            
+        iron-list paper-material {
           background: white;
           box-sizing: border-box;
           margin: 8px 0;
@@ -69,13 +70,7 @@
       paper-item paper-icon-button {
           color: #757575;
        }
-      /*[icon="add"]{
-        display: block;
-        position: absolute;
-        bottom: 20px;
-      }
-      */
-   
+     
 
       [icon="create"] {
         margin-left: auto; 
@@ -86,17 +81,15 @@
           --paper-badge-margin-bottom: 0px;
        }
        
-       /*paper-item > div {
-         width: 30%;
-       }*/
+       
        paper-item  > .truncate {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             width: 80%;
-            /*display: inherit;*/
-            color: tomato;
         }
+
+       
       
 
       /** page elements **/
@@ -150,15 +143,16 @@
              
           
          }
-
+        
+        /**    Components    **/
           .fab {
-              right: 50px;
+              right: 30px;
           }
 
          paper-item > .truncate,
          paper-item > paper-tooltip {
              
-            width: 40%;
+            width: 100px;
         }
       
          paper-dropdown-menu {
@@ -166,6 +160,13 @@
                width: 110px;
              }
          }
+
+          paper-material {
+           padding-left: 10px;
+           padding-right: 10px;
+         }
+
+         /** Page Elements **/
          
          .task {
            width: 100%;
@@ -180,10 +181,7 @@
               margin-left: 5%
           }
 
-         paper-material {
-           padding-left: 10px;
-           padding-right: 10px;
-         }
+        
        }
 
         
@@ -198,7 +196,8 @@
         </div>
        </paper-toolbar>
        <div class="task">
-       <template is="dom-repeat" items="[[taskList]]" index-as="index">
+       <iron-list items="[[taskList]]" index="index">
+       <template>
          <paper-material >
               <paper-item id=item>
                   <paper-dropdown-menu label="status" on-iron-select="updateTaskStatus">
@@ -208,16 +207,16 @@
                     <paper-item status="inprogress">inprogress</paper-item>              
                   </paper-listbox>
               </paper-dropdown-menu>
-              <!--<div style="display: inline-block;">-->
-                 <!--<span  title$="[[item.name]]" class="truncate">[[item.name]]</span>                 -->
+              
                  <span  id$="t" + "[[index]]" class="truncate" offset="0">[[item.name]]</span> 
-                 <paper-tooltip for$="t" +"[[index]]">[[item.name]]</paper-tooltip>
-              <!--</div>-->
+                 <!--<paper-tooltip for$="t" +"[[index]]">[[item.name]]</paper-tooltip>-->
+              
                 <paper-icon-button icon="create" on-tap="_editTask"></paper-icon-button>  
                 <paper-icon-button icon="delete" on-tap="deleteTask"></paper-icon-button>
               </paper-item>
          </paper-material>
        </template>
+       </iron-list>
        </div>
        <paper-dialog id="taskNameDialogBox" modal>
             <h3>Task Name Dialog Box</h3>
@@ -229,9 +228,9 @@
              <paper-button  autofocus on-tap="_clearTaskName">Clear</paper-button>
           </div>
        </paper-dialog>
-       <!--<div class="fab">-->
+      
          <paper-fab class="fab" icon="add" on-tap="_showAddTaskDialogBox"></paper-fab>
-       <!--</div>-->
+       
   </template>
   <script>
     Polymer({
